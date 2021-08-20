@@ -1,0 +1,36 @@
+version: '3'
+
+services:
+  web:
+    image: nginx:latest
+    ports:
+      - "80:80"
+    volumes:
+      - .:/app
+      - .docker/nginx.conf:/etc/nginx/conf.d/default.conf
+    links:
+      - php
+
+  php:
+    image: jorge07/alpine-php:7.4-dev
+    expose:
+      - 9000
+    volumes:
+      - .:/app
+    environment:
+      XDEBUG_CONFIG: remote_host=host.docker.internal
+    links:
+      - mysql
+
+  mysql:
+    image: mysql:5.7
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+    volumes:
+      - db_data:/var/lib/mysql
+      - .docker/mysql/data.sql:/docker-entrypoint-initdb.d/data.sql:ro
+
+volumes:
+  db_data:

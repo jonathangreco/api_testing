@@ -5,12 +5,14 @@ namespace App\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @ORM\Entity()
  * @ORM\Table(name="users")
+ * @method string getUserIdentifier()
  */
-class User
+class User implements UserInterface
 {
     /**
      * @ORM\Id()
@@ -126,11 +128,17 @@ class User
     }
 
     /**
-     * @return Collection
+     * @return array
      */
     public function getRoles()
     {
-        return $this->roles;
+        $roleNames = [];
+        /** @var \App\Entity\Role $role */
+        foreach ($this->roles as $role) {
+            $roleNames[] = $role->getName();
+        }
+
+        return $roleNames;
     }
 
     /**
@@ -146,5 +154,25 @@ class User
     public function addRole($role)
     {
         $this->roles->add($role);
+    }
+
+    public function getSalt()
+    {
+        return '';
+    }
+
+    public function eraseCredentials()
+    {
+        return '';
+    }
+
+    public function getUsername()
+    {
+        return $this->getEmail();
+    }
+
+    public function __call($name, $arguments)
+    {
+        return '';
     }
 }
